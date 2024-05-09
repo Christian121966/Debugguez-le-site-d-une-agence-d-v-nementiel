@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import Slider from "./index";
+import Slider from "./Slider";
 import { api, DataProvider } from "../../contexts/DataContext";
 
 const data = {
@@ -26,7 +26,7 @@ const data = {
   ],
 };
 
-describe("When slider is created", () => {
+/*describe("When slider is created", () => {
   it("a list card is displayed", async () => {
     window.console.error = jest.fn();
     api.loadData = jest.fn().mockReturnValue(data);
@@ -40,5 +40,30 @@ describe("When slider is created", () => {
     await screen.findByText(
       "Oeuvre à la coopération entre le secteur public et le privé."
     );
+  });
+});*/
+
+describe("When slider is created", () => {
+  it("displays all expected elements correctly", async () => {
+    window.console.error = jest.fn();
+    api.loadData = jest.fn().mockReturnValue(data);
+    render(
+      <DataProvider>
+        <Slider />
+      </DataProvider>
+    );
+
+    await screen.findByText("World economic forum");
+    await screen.findByText("février"); // Correction du mois attendu
+    await screen.findByText(
+      "Oeuvre à la coopération entre le secteur public et le privé."
+    );
+    expect(
+      screen.getByRole("img", { name: /World economic forum/i })
+    ).toHaveAttribute(
+      "src",
+      "/images/evangeline-shaw-nwLTVwb7DbU-unsplash1.png"
+    );
+    expect(console.error).not.toHaveBeenCalled(); // Vérifie qu'il n'y a pas d'erreurs de rendu
   });
 });
