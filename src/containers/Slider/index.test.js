@@ -26,23 +26,6 @@ const data = {
   ],
 };
 
-/*describe("When slider is created", () => {
-  it("a list card is displayed", async () => {
-    window.console.error = jest.fn();
-    api.loadData = jest.fn().mockReturnValue(data);
-    render(
-      <DataProvider>
-        <Slider />
-      </DataProvider>
-    );
-    await screen.findByText("World economic forum");
-    await screen.findByText("janvier");
-    await screen.findByText(
-      "Oeuvre à la coopération entre le secteur public et le privé."
-    );
-  });
-});*/
-
 describe("When slider is created", () => {
   it("displays all expected elements correctly", async () => {
     window.console.error = jest.fn();

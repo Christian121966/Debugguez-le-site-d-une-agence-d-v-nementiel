@@ -1,78 +1,89 @@
-
-
-import { useEffect, useState } from "react";
-import { useData } from "../../contexts/DataContext";
-import { getMonth } from "../../helpers/Date";
-import "./style.scss";
+import React, { useEffect, useState, useMemo } from 'react';
+import { useData } from '../../contexts/DataContext';
+import { getMonth } from '../../helpers/Date';
+import './style.scss';
 
 const Slider = () => {
   const { data } = useData();
   const [index, setIndex] = useState(0);
-  const byDateDesc = data?.focus ? data.focus.sort((evtA, evtB) => {
-    // Convertir les dates en objets Date pour la comparaison
-    const dateA = new Date(evtA.date);
-    const dateB = new Date(evtB.date);
-    // Tri décroissant par date
-    return dateB - dateA;
-  }) : [];
-  /* const byDateDesc = data?.focus.sort((evtA, evtB) =>
-    new Date(evtA.date) < new Date(evtB.date) ? -1 : 1
-  ); */
 
-
-  
-  useEffect(() => {
-    let timer;
-    if (byDateDesc.length > 0) {
-      timer = setInterval(() => {
-        setIndex((prevIndex) => (prevIndex < byDateDesc.length - 1 ? prevIndex + 1 : 0));
-      }, 5000);
-      return () => {
-        if (timer) clearInterval(timer);
-      }
+  // Images statiques utilisées comme fallback
+  const staticImages = useMemo(() => [
+    {
+      id: 1,
+      title: 'World economic forum',
+      description: 'Oeuvre à la coopération entre le secteur public et le privé.',
+      date: '2022-01-29T20:28:45.744Z',
+      cover: '/images/evangeline-shaw-nwLTVwb7DbU-unsplash1.png'
+    },
+    {
+      id: 2,
+      title: 'Nordic design week',
+      description: 'Conférences sur le design de demain dans le digital',
+      date: '2022-03-29T20:28:45.744Z',
+      cover: '/images/teemu-paananen-bzdhc5b3Bxs-unsplash1.png'
+    },
+    {
+      id: 3,
+      title: 'Sneakercraze market',
+      description: 'Rencontres de spécialistes des Sneakers Européens.',
+      date: '2022-05-29T20:28:45.744Z',
+      cover: '/images/jakob-dalbjorn-cuKJre3nyYc-unsplash1.png'
     }
-  }, [byDateDesc.length]);
+  ], []);
 
-  /* useEffect(() => {
+  // Choix des images dynamiques ou statiques et tri par date
+  const images = useMemo(() => {
+    const imagesToDisplay = data?.focus || staticImages;
+    return imagesToDisplay.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [data, staticImages]);
+
+  // Mise à jour automatique de l'index pour le défilement des images
+  useEffect(() => {
     const timer = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex < byDateDesc.length - 1 ? prevIndex + 1 : 0));
+      setIndex(prevIndex => (prevIndex < images.length - 1 ? prevIndex + 1 : 0));
     }, 5000);
     return () => clearInterval(timer);
-  }, [byDateDesc.length]); */
+  }, [images.length]);
 
-    return (
-      <div className="SlideCardList">
-        {byDateDesc?.map((event, idx) => (
-          <div
-            key={event.id}  // Utilisation de l'ID unique de l'événement pour la clé du div principal
-            className={`SlideCard SlideCard--${index === idx ? "display" : "hide"}`}
-          >
-            <img src={event.cover} alt={event.title} />
-            <div className="SlideCard__descriptionContainer">
-              <div className="SlideCard__description">
-                <h3>{event.title}</h3>
-                <p>{event.description}</p>
-                <div>{getMonth(new Date(event.date))}</div>
-              </div>
+  // Affichage conditionnel en cas d'absence d'images
+  if (!images.length) {
+    return <div className="SlideCardList">Aucune image à afficher.</div>;
+  }
+
+  return (
+    <div className="SlideCardList">
+      {images.map((image, idx) => (
+        <div
+          key={image.id}
+          className={`SlideCard SlideCard--${index === idx ? 'display' : 'hide'}`}
+        >
+          <img src={image.cover} alt={image.title} />
+          <div className="SlideCard__descriptionContainer">
+            <div className="SlideCard__description">
+              <h3>{image.title}</h3>
+              <p>{image.description}</p>
+              <div>{getMonth(new Date(image.date))}</div>
             </div>
           </div>
-        ))}
-        <div className="SlideCard__paginationContainer">
-          <div className="SlideCard__pagination">
-            {byDateDesc.map((event) => (
-              <input
-                key={event.id}  // Utilisation de l'ID unique de l'événement pour la clé du bouton radio
-                type="radio"
-                name="radio-button"
-                checked={index === byDateDesc.indexOf(event)}
-                onChange={() => setIndex(byDateDesc.indexOf(event))}
-                readOnly
-              />
-            ))}
-          </div>
+        </div>
+      ))}
+      <div className="SlideCard__paginationContainer">
+        <div className="SlideCard__pagination">
+          {images.map((image) => (
+            <input
+              key={image.id}
+              type="radio"
+              name="radio-button"
+              aria-label={`Slide ${image.id}`}
+              checked={index === images.indexOf(image)}
+              onChange={() => setIndex(images.indexOf(image))}
+            />
+          ))}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+};
 
 export default Slider;
